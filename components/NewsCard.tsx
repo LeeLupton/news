@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { NewsItem } from '../types';
 import ShareButton from './ShareButton';
 
@@ -10,6 +9,32 @@ interface NewsCardProps {
 const NewsCard: React.FC<NewsCardProps> = ({ item }) => {
   const placeholderImage = `https://picsum.photos/seed/${item.link.length}/400/200`;
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if (item.imageUrl) {
+      setIsLoading(true);
+      setHasError(false);
+    } else {
+      setIsLoading(false);
+      setHasError(true);
+    }
+  }, [item.imageUrl]);
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleImageError = () => {
+    if (!hasError) {
+      setIsLoading(false);
+      setHasError(true);
+    }
+  };
+
+  const imageSrc = hasError || !item.imageUrl ? placeholderImage : item.imageUrl;
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col">
       <a 
@@ -19,12 +44,16 @@ const NewsCard: React.FC<NewsCardProps> = ({ item }) => {
         className="block"
         aria-label={`Read more about ${item.title}`}
       >
-        <div className="relative h-48 w-full overflow-hidden">
+        <div className="relative h-48 w-full overflow-hidden bg-gray-200">
+          {isLoading && (
+            <div className="absolute inset-0 bg-gray-300 animate-pulse" role="status" aria-label="Loading image..."></div>
+          )}
           <img 
-            src={item.imageUrl || placeholderImage} 
+            src={imageSrc} 
             alt={item.title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-            onError={(e) => { e.currentTarget.src = placeholderImage; }}
+            className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
             loading="lazy"
           />
         </div>
