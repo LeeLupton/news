@@ -1,0 +1,5 @@
+{
+  "name": "Global News Hub",
+  "description": "A modern news aggregator that fetches and displays articles from a wide range of public RSS feeds across various categories like world news, technology, business, and sports.",
+  "requestFramePermissions": []
+}
